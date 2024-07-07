@@ -26,7 +26,9 @@ exports.register_user = async (req, res) => {
 
         const { email, password, firstName } = body;
 
-        const check_email = await supabase.from('users').select().eq('email', email);
+        const email_case = email.toLowerCase().trim();
+
+        const check_email = await supabase.from('users').select().eq('email', email_case);
 
         if (check_email.data.length) res.status(409).json("Email already exists");
 
@@ -34,9 +36,9 @@ exports.register_user = async (req, res) => {
         const new_password = await bcrypt.hash(password, salt);
 
         body.password = new_password;
-        body.email = email.toLowerCase().trim();
+        body.email = email_case;
 
-        const cleaned_email = email.replace(/[^a-zA-Z0-9]/g, '');
+        const cleaned_email = email_case.replace(/[^a-zA-Z0-9]/g, '');
         const userId = `UID_${cleaned_email}`;
 
         const new_user = await supabase.from('users').insert({
@@ -44,9 +46,9 @@ exports.register_user = async (req, res) => {
             ...body
         });
 
-        if (new_user.error) return res.status(500).json("Error creating user");
+        if (new_user.error) res.status(500).json("Error creating user");
 
-        const auth_token = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
+        const auth_token = jwt.sign({ userId, email_case }, process.env.JWT_SECRET, {
             expiresIn: "30d",
             issuer: process.env.JWT_ISSUER
         });

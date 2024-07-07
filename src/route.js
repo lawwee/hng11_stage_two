@@ -9,13 +9,13 @@ router
 
     .post("/auth/login", controller.login_user)
     
-    .get("/users/:id", auth, controller.get_user_details)
+    .get("/api/users/:id", auth, controller.get_user_details)
 
-    .get("/organisations", auth, controller.all_organisations)
+    .get("/api/organisations", auth, controller.all_organisations)
 
-    .get("/organisations/:orgId", auth, controller.get_single_org)
+    .get("/api/organisations/:orgId", auth, controller.get_single_org)
 
-    .post("/organisations", auth, controller.create_organisation)
+    .post("/api/organisations", auth, controller.create_organisation)
 
     .post("/organisations/:orgId/users", auth, controller.add_user)
     
