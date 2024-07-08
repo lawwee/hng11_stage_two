@@ -5,32 +5,38 @@ module.exports = (req, res, next) => {
     const { authorization } = req.headers;
 
     if (!authorization) {
-        const error = new Error('Unauthorized');
-        error.statusCode = 401;
-        throw error;
-    };
+        return next({
+            status_code: 403,
+            error: "Unauthorized",
+        });
+    }
 
     const [, auth_key] = authorization.split(" ");
 
     if (!auth_key) {
-        const error = new Error('Unauthorized');
-        error.statusCode = 401;
-        throw error;
+        return next({
+            status_code: 403,
+            error: "Unauthorized",
+        });
     };
 
     try {
         const user_details = jwt.verify(auth_key, process.env.JWT_SECRET);
 
         if (!user_details) {
-            const error = new Error('Not Authenticated');
-            error.statusCode = 401;
-            throw error;
+            return next({
+                status_code: 403,
+                error: "Not Authenticated",
+            });
         };
 
         const { iss } = user_details;
 
         if (iss !== process.env.JWT_ISSUER) {
-            return res.status(403).json("Token is invalid");
+            return next({
+                status_code: 403,
+                error: "Token is invalid",
+            });
         };
 
         req.user = user_details.userId;
